@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("birthDate", birthEdit.getText().toString());
             editor.commit();
 
-
+    //felhasznalo nev alapjan eldontjuk, hogy  az admin vagy a usermenube megyunk
         if (nameEdit.getText().toString().equals("admin")) {
             navigateAdminMenu();
             //initDb();
@@ -91,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addGroup(View v){
-        TextView groupName = (TextView) findViewById(R.id.groupName);
-        dh.insertGroup(groupName.getText().toString());
-        navigateAdminMenu();
+        TextView groupName = (TextView) findViewById(R.id.groupName); // megkeresi a felhasznalo altal beirt szoveget
+        dh.insertGroup(groupName.getText().toString()); // beszurja azt az adatbazisba
+        navigateAdminMenu(); //visszanavigal a fomenure
     }
 
     public void addQuestion(View v){
