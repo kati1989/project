@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.planningpoker08.Group;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +13,10 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 8;
 
     // Database Name
-    private static final String DATABASE_NAME = "planning_db";
+    private static final String DATABASE_NAME = "planningPoker_db";
 
 
     public DatabaseHelper(Context context) {
@@ -32,6 +30,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // create groups table
         db.execSQL(Group.CREATE_TABLE);
         db.execSQL(Question.CREATE_TABLE);
+        db.execSQL(User.CREATE_TABLE);
+
+        db.execSQL(Answer.CREATE_TABLE);
+
     }
 
     // Upgrading database
@@ -39,10 +41,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + Group.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Question.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + User.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Answer.TABLE_NAME);
 
         // Create tables again
         onCreate(db);
     }
+
+    public long insertUser(String name) {
+        // get writable database as we want to write data
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        // `id` and `timestamp` will be inserted automatically.
+        // no need to add them
+        values.put(User.COLUMN_NAME, name);
+
+        // insert row
+        long id = db.insert(User.TABLE_NAME, null, values);
+
+        // close db connection
+        db.close();
+
+        // return newly inserted row id
+        return id;
+    }
+
 
     public long insertGroup(String group) {
         // get writable database as we want to write data
@@ -52,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // `id` and `timestamp` will be inserted automatically.
         // no need to add them
         values.put(Group.COLUMN_NAME, group);
+        values.put(Group.COLUMN_ACTIVE_QUESTION, 0);
 
         // insert row
         long id = db.insert(Group.TABLE_NAME, null, values);
@@ -63,12 +89,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public User getUser(String name) {
+        // get readable database as we are not inserting anything
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(User.TABLE_NAME,
+                new String[]{User.COLUMN_ID, User.COLUMN_NAME, User.COLUMN_GROUP},
+                User.COLUMN_NAME + "=?",
+                new String[]{String.valueOf(name)}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        // prepare group object
+        User user = new User(
+                cursor.getInt(cursor.getColumnIndex(User.COLUMN_ID)),
+                cursor.getInt(cursor.getColumnIndex(User.COLUMN_GROUP)),
+                cursor.getString(cursor.getColumnIndex(User.COLUMN_NAME))
+        );
+
+        // close the db connection
+        cursor.close();
+
+        return user;
+    }
+
+    public User getUser(int id) {
+        // get readable database as we are not inserting anything
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(User.TABLE_NAME,
+                new String[]{User.COLUMN_ID, User.COLUMN_NAME, User.COLUMN_GROUP},
+                User.COLUMN_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        // prepare group object
+        User user = new User(
+                cursor.getInt(cursor.getColumnIndex(User.COLUMN_ID)),
+                cursor.getInt(cursor.getColumnIndex(User.COLUMN_GROUP)),
+                cursor.getString(cursor.getColumnIndex(User.COLUMN_NAME))
+        );
+
+        // close the db connection
+        cursor.close();
+
+        return user;
+    }
+
     public Group getGroup(long id) {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Group.TABLE_NAME,
-                new String[]{Group.COLUMN_ID, Group.COLUMN_NAME},
+                new String[]{Group.COLUMN_ID, Group.COLUMN_NAME, Group.COLUMN_ACTIVE_QUESTION},
                 Group.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -78,8 +154,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // prepare group object
         Group group = new Group(
                 cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Group.COLUMN_NAME))
-                );
+                cursor.getString(cursor.getColumnIndex(Group.COLUMN_NAME)),
+                cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ACTIVE_QUESTION))
+        );
 
         // close the db connection
         cursor.close();
@@ -87,7 +164,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return group;
     }
 
-    public List<String> getAllGroups() {
+    public List<Group> getAllGroups() {
+        List<Group> groups = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Group.TABLE_NAME ;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // az elso elemre allitja a cursort
+        if (cursor.moveToFirst()) {
+            do {
+                String name;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                name = cursor.getString(cursor.getColumnIndex(Group.COLUMN_NAME));
+
+                int id;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                id = cursor.getInt(cursor.getColumnIndex(Group.COLUMN_NAME));
+
+                int activeQuestion;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                activeQuestion = cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ACTIVE_QUESTION));
+
+                groups.add(new Group(id,name,activeQuestion));
+            } while (cursor.moveToNext());//atrakja a cursort  a kovtekezo elemre
+        }
+
+        // close db connection
+        db.close();
+        return groups;
+    }
+
+    public List<String> getAllGroupsText() {
         List<String> groups = new ArrayList<>();
 
         // Select All Query
@@ -128,11 +238,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(Group.COLUMN_NAME, group.getName());
+        values.put(Group.COLUMN_ACTIVE_QUESTION, group.getQuestionId());
+
 
         // updating row
         return db.update(Group.TABLE_NAME, values, Group.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(group.getId())});
     }
+
+    public int updateUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(User.COLUMN_NAME, user.getName());
+        values.put(User.COLUMN_GROUP, user.getGroupId());
+
+        // updating row
+        return db.update(User.TABLE_NAME, values, User.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(user.getUserId())});
+    }
+
 
     public void deleteGroup(Group group) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -189,7 +314,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return question;
     }
 
-    public List<String> getAllQuestions() {
+    public List<String> getAllQuestionsText() {
         List<String> questions = new ArrayList<>();
 
         // Select All Query
@@ -203,7 +328,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 String group;// = new Group();
                 //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
-                group = cursor.getString(cursor.getColumnIndex(Group.COLUMN_NAME));
+                group = cursor.getString(cursor.getColumnIndex(Question.COLUMN_DESCRIPTION));
 
                 questions.add(group);
             } while (cursor.moveToNext());//atrakja a cursort  a kovtekezo elemre
@@ -214,4 +339,127 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return questions;
     }
 
+    public List<Question> getAllQuestions() {
+        List<Question> questions = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Question.TABLE_NAME ;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // az elso elemre allitja a cursort
+        if (cursor.moveToFirst()) {
+            do {
+                int id;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                id = cursor.getInt (cursor.getColumnIndex(Question.COLUMN_ID));
+
+                int groupId;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                groupId = cursor.getInt (cursor.getColumnIndex(Question.COLUMN_GROUPID));
+
+                String description;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                description = cursor.getString(cursor.getColumnIndex(Question.COLUMN_DESCRIPTION));
+
+                String startTime;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                startTime = cursor.getString(cursor.getColumnIndex(Question.COLUMN_STARTTIME));
+
+                String endTime;// = new Group();
+                //group.setId(cursor.getInt(cursor.getColumnIndex(Group.COLUMN_ID)));
+                endTime = cursor.getString(cursor.getColumnIndex(Question.COLUMN_ENDTIME));
+
+                questions.add(new Question(id,groupId,description,startTime,endTime));
+            } while (cursor.moveToNext());//atrakja a cursort  a kovtekezo elemre
+        }
+
+        // close db connection
+        db.close();
+        return questions;
+    }
+
+    public long insertAnswer(int userId, int questionId, int vote, int group) {
+        // get writable database as we want to write data
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        // `id` and `timestamp` will be inserted automatically.
+        values.put(Answer.COLUMN_USERID, userId);
+        values.put(Answer.COLUMN_QUESTIONID, questionId);
+        values.put(Answer.COLUMN_NOTE, vote);
+        values.put(Answer.COLUMN_GROUPID, group);
+
+        // insert row
+        long id = db.insert(Answer.TABLE_NAME, null, values);
+
+        // close db connection
+        db.close();
+
+        // return newly inserted row id
+        return id;
+    }
+
+    public List<Answer> getAllQuestionsForGroup(int group) {
+        List<Answer> questions = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Answer.TABLE_NAME + " WHERE " + Answer.COLUMN_GROUPID + "=" + group ;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // az elso elemre allitja a cursort
+        if (cursor.moveToFirst()) {
+            do {
+                int userId;// = new Group();
+                userId = cursor.getInt (cursor.getColumnIndex(Answer.COLUMN_USERID));
+
+                int groupId;// = new Group();
+                groupId = cursor.getInt (cursor.getColumnIndex(Answer.COLUMN_GROUPID));
+
+                int questionId;// = new Group();
+                questionId = cursor.getInt(cursor.getColumnIndex(Answer.COLUMN_QUESTIONID));
+
+                int note;// = new Group();
+                note = cursor.getInt(cursor.getColumnIndex(Answer.COLUMN_NOTE));
+            } while (cursor.moveToNext());//atrakja a cursort  a kovtekezo elemre
+        }
+
+        // close db connection
+        db.close();
+        return questions;
+    }
+
+    public List<Answer> getAllAnswers() {
+        List<Answer> questions = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Answer.TABLE_NAME ;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // az elso elemre allitja a cursort
+        if (cursor.moveToFirst()) {
+            do {
+                int userId;// = new Group();
+                userId = cursor.getInt (cursor.getColumnIndex(Answer.COLUMN_USERID));
+
+                int groupId;// = new Group();
+                groupId = cursor.getInt (cursor.getColumnIndex(Answer.COLUMN_GROUPID));
+
+                int questionId;// = new Group();
+                questionId = cursor.getInt(cursor.getColumnIndex(Answer.COLUMN_QUESTIONID));
+
+                int note;// = new Group();
+                note = cursor.getInt(cursor.getColumnIndex(Answer.COLUMN_NOTE));
+            } while (cursor.moveToNext());//atrakja a cursort  a kovtekezo elemre
+        }
+
+        // close db connection
+        db.close();
+        return questions;
+    }
 }

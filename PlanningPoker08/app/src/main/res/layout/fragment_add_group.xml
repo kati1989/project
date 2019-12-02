@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/textViewQTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add New Group"
@@ -27,7 +27,7 @@
             android:textSize="28dp" />
 
         <Button
-            android:id="@+id/buttonAdd"
+            android:id="@+id/buttonAddQuestion"
             android:onClick="addGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

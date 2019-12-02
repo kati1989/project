@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddGroupFragment">
+    tools:context=".AddQuestionFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,26 +11,44 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/textViewQTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add New Group"
+            android:text="Add New Question"
             android:textSize="28dp" />
 
+        <TextView
+            android:id="@+id/textView22"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Question Group"
+            android:textSize="24sp" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Question Text"
+            android:textSize="24sp" />
+
         <EditText
-            android:id="@+id/groupName"
+            android:id="@+id/questionName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Name"
             android:textSize="28dp" />
 
         <Button
-            android:id="@+id/buttonAdd"
-            android:onClick="addGroup"
+            android:id="@+id/buttonAddQuestion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="addQuestion"
             android:text="Add" />
 
 

@@ -12,7 +12,7 @@ public class Question {
     public static final String COLUMN_ENDTIME = "endtime";
 
 
-    public static final String COLUMN_NAME = "";
+
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -20,7 +20,7 @@ public class Question {
                     + COLUMN_GROUPID + " INTEGER, "
                     + COLUMN_DESCRIPTION + " TEXT, "
                     + COLUMN_STARTTIME + " TEXT, "
-                    + COLUMN_ENDTIME + " TEXT, "
+                    + COLUMN_ENDTIME + " TEXT "
                     + ")";
 
     private int id;
@@ -76,4 +76,10 @@ public class Question {
     public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
+
+    @Override
+    public String toString() {
+        return getDescription();
+    }
+
 }

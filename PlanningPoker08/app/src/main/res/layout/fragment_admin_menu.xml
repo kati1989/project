@@ -3,36 +3,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddGroupFragment">
+    tools:context=".JoinGroupFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView6"
+        <Button
+            android:id="@+id/addGroupButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add New Group"
-            android:textSize="28dp" />
-
-        <EditText
-            android:id="@+id/groupName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Name"
-            android:textSize="28dp" />
+            android:onClick="navigateAddGroup"
+            android:text="Add Group " />
 
         <Button
-            android:id="@+id/buttonAdd"
-            android:onClick="addGroup"
+            android:id="@+id/addQuestionButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add" />
+            android:onClick="navigateAddQuestion"
+            android:text="Add Question" />
 
+        <Button
+            android:id="@+id/activateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="navigateActivateQuestion"
+            android:text="Activate Question" />
 
+        <Button
+            android:id="@+id/viewButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="navigateViewEvaluation"
+            android:text="View Evaluation" />
     </LinearLayout>
 </FrameLayout>
