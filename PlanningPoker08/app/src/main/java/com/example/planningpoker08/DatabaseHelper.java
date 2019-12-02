@@ -13,7 +13,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     // Database Name
     private static final String DATABASE_NAME = "planningPoker_db";
@@ -69,25 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public long insertGroup(String group) {
-        // get writable database as we want to write data
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        // `id` and `timestamp` will be inserted automatically.
-        // no need to add them
-        values.put(Group.COLUMN_NAME, group);
-        values.put(Group.COLUMN_ACTIVE_QUESTION, 0);
-
-        // insert row
-        long id = db.insert(Group.TABLE_NAME, null, values);
-
-        // close db connection
-        db.close();
-
-        // return newly inserted row id
-        return id;
-    }
 
     public User getUser(String name) {
         // get readable database as we are not inserting anything
@@ -163,6 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return group;
     }
+
 
     public List<Group> getAllGroups() {
         List<Group> groups = new ArrayList<>();
@@ -379,6 +362,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return questions;
     }
+
+    public long insertGroup(String group) {
+        // get writable database as we want to write data
+
+        ContentValues values = new ContentValues();
+        // `id` and `timestamp` will be inserted automatically.
+        // no need to add them
+        List<Group> allGroup = getAllGroups();
+        int max=0;
+        if (!allGroup.isEmpty()) {
+            Group maxId = allGroup.stream().max((item1, item2) -> {
+                return item1.getId() - item2.getId();
+            }).get();
+
+            if (maxId != null)
+                max = maxId.getId() + 1;
+        }
+        values.put(Group.COLUMN_ID,max );
+        values.put(Group.COLUMN_NAME, group);
+        values.put(Group.COLUMN_ACTIVE_QUESTION, 0);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // insert row
+        long id = db.insert(Group.TABLE_NAME, null, values);
+
+        // close db connection
+        db.close();
+
+        // return newly inserted row id
+        return id;
+    }
+
 
     public long insertAnswer(int userId, int questionId, int vote, int group) {
         // get writable database as we want to write data

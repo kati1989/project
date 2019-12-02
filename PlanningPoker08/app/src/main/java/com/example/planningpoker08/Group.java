@@ -3,7 +3,7 @@ package com.example.planningpoker08;
 public class Group {
 
     public static final String TABLE_NAME = "groupTable";
-    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_ACTIVE_QUESTION = "questionId";
 
@@ -52,7 +52,7 @@ public class Group {
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
-                    + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + COLUMN_ID + " INTEGER, "
                     + COLUMN_NAME + " TEXT, "
                     + COLUMN_ACTIVE_QUESTION+ " INTEGER "
                     + ")";
